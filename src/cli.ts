@@ -7,17 +7,11 @@ import { stdin as input, stdout as output } from "node:process";
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { Command } from "commander";
-import { generateContent } from "./apiClient.js";
 import { defaultProfile, loadConfig, parseModules, saveConfig } from "./config.js";
-import { renderDashboard } from "./dashboard/render.js";
-import { checkFabrication } from "./fabricationCheck.js";
-import { writeRun } from "./fileWriter.js";
-import { buildSystemPrompt, buildUserMessage } from "./promptBuilder.js";
-import { parseModelResponse } from "./responseParser.js";
-import { MODULES, type BusinessProfile, type ModuleId, type RunRequest } from "./types.js";
-import { validateInput } from "./validate.js";
+import { startDashboardServer } from "./dashboard/server.js";
+import { generateRun } from "./runPipeline.js";
+import { MODULES, type BusinessProfile } from "./types.js";
 
-const MODEL = "gpt-5.4-mini";
 type RunOptions = { type?: string; input?: string; stdin?: boolean; location?: string; modules?: string; lang?: string; feedback?: string; ctaLink?: string; out?: string; debug?: boolean };
 
 async function ask(question: string): Promise<string> { const rl = createInterface({ input, output }); try { return (await rl.question(question)).trim(); } finally { rl.close(); } }
@@ -44,17 +38,8 @@ async function runCommand(options: RunOptions): Promise<void> {
   if (modules.includes("languagePack") && !options.lang) throw new Error("ERROR: --lang is required when the language-pack module is active.");
   if (modules.includes("feedback") && !options.feedback) { modules = modules.filter((module) => module !== "feedback"); console.log("NOTE: Feedback Loop skipped because --feedback was not supplied."); }
   const rawInput = await inputValue(options.input, options.stdin);
-  const validation = validateInput(rawInput); validation.warnings.forEach((warning) => console.warn(warning));
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error("ERROR: OPENAI_API_KEY is missing. Add it to your environment or local .env file, then try again.");
-  const request: RunRequest = { type, input: validation.sanitizedInput, location, modules, language: options.lang, feedback: options.feedback, ctaLink: options.ctaLink, outDir: options.out ?? "./output", model: MODEL };
-  const rawResponse = await generateContent({ apiKey, model: request.model, system: buildSystemPrompt({ businessType: type, rawInput: request.input, location, activeModules: modules, language: options.lang, feedback: options.feedback }), userMessage: buildUserMessage(options.feedback) });
-  const parsed = parseModelResponse(rawResponse, modules);
-  if (parsed.missingModules.length) console.warn(`WARNING: model response omitted module(s): ${parsed.missingModules.join(", ")}. Core files were still written.`);
-  const fabrication = checkFabrication(parsed, request.input);
-  fabrication.flags.forEach((flag) => console.warn(`⚠ WARNING: possible fabricated detail — "${flag.token}" in ${flag.block}. Review before publishing.`));
-  const dashboardHtml = await renderDashboard(request, parsed, fabrication);
-  const written = await writeRun({ request, parsed, fabrication, rawInputVerbatim: rawInput, dashboardHtml });
+  const result = await generateRun({ rawInput, type, location, modules, language: options.lang, feedback: options.feedback, ctaLink: options.ctaLink, outDir: options.out ?? "./output", onNotice: (notice) => console.warn(notice) });
+  const written = result.written;
   console.log(`\nHyperLocal Echo complete: ${written.directory}`); console.log(`Dashboard: ${written.dashboardPath}`); console.log(`Open it with: hyperlocal-echo open ${written.runId}`);
 }
 async function profilePrompt(existing = defaultProfile()): Promise<BusinessProfile> {
@@ -78,4 +63,5 @@ program.command("run").description("Generate a content matrix").option("--type <
 program.command("init").description("Create your saved business profile").action(async () => { const profile = await profilePrompt(); await saveConfig(profile); console.log("Saved HyperLocal Echo configuration."); });
 program.command("config").description("View or edit saved business profile").action(async () => { const profile = await loadConfig(); console.log(JSON.stringify(profile, null, 2)); if (input.isTTY && (await ask("Edit this profile? [y/N]: ")).toLowerCase() === "y") { await saveConfig(await profilePrompt(profile)); console.log("Configuration updated."); } });
 program.command("open <run-id>").description("Open a run dashboard in your default browser").action(async (runId) => { try { await openDashboard(runId); } catch (error) { console.error(error instanceof Error ? error.message : "ERROR: unable to open dashboard."); process.exitCode = 1; } });
+program.command("serve").description("Run the local dashboard input server").option("--port <port>", "localhost port", "4173").option("--out <directory>", "output directory", "./output").action(async (options: { port: string; out: string }) => { try { const port = Number(options.port); if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error("ERROR: --port must be a number between 1024 and 65535."); await startDashboardServer({ port, outDir: options.out }); } catch (error) { console.error(error instanceof Error ? error.message : "ERROR: unable to start dashboard server."); process.exitCode = 1; } });
 program.parseAsync().catch((error) => { console.error(error instanceof Error ? error.message : "ERROR: command failed."); process.exitCode = 1; });

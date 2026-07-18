@@ -49,9 +49,12 @@ GROUND RULES
 addresses, hours, awards, review counts, or quotes. If a detail is
 required for formatting but absent, omit that field rather than
 fabricate it.
-2. Infer tone from the input but always stay professional — no cliches
+2. First silently identify the relevant offer, event, timing, price, capacity,
+inclusions, location, and CTA facts in the Raw Input Asset. Use only supported
+facts in the requested blocks; do not output this extraction as a separate block.
+3. Infer tone from the input but always stay professional — no cliches
 like "hidden gem" or "game-changer."
-3. Output ONLY the requested blocks below, in order, separated by the
+4. Output ONLY the requested blocks below, in order, separated by the
 exact delimiter line ---BLOCK---. No preamble, no summary, no closing
 remarks.
 ===BLOCK: SEO_BLOG===

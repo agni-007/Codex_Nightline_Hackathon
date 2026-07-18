@@ -27,6 +27,7 @@ Run commands with `npm run dev -- <command>` during development, or install the 
 | `config` | `npm run dev -- config` | Views, and interactively edits, the saved business profile. |
 | `run` | `npm run dev -- run --type "Artisan Bakery" --input ./notes/sourdough.txt --location "Fort Kochi" --modules flyer,sms,hashtags` | Generates the core content and selected modules. `--input` also accepts inline text; use `--stdin` for piped text. |
 | `open` | `npm run dev -- open 2026-07-19_1042_hey-so-this-saturday` | Opens a completed run's dashboard in the default browser. |
+| `serve` | `npm run dev -- serve --port 4174` | Runs the local dashboard input server at `http://localhost:4174`. Type a plain-English update directly into the dashboard to generate a new run. |
 
 `run` supports `--lang es` for the language-pack module, `--feedback "open_rate=18%,click_rate=2%"` for feedback notes, `--cta-link https://example.com` for a flyer QR code, and `--out ./output` to change the output directory.
 
@@ -46,3 +47,7 @@ The three core outputs, SEO Blog Post, Script Studio, and Smart Newsletter, are 
 | `feedback` | `modules/feedback-notes.md` | Off |
 
 Each run creates `output/<timestamp>_<input-slug>/` containing the individual content files, `dashboard.html`, and an auditable `run-manifest.json`. Review any fabrication warnings before publishing.
+
+## Dashboard input mode
+
+Start `serve`, then open the displayed localhost address. Enter a plain-English business update such as “Saturday workshop, 10am to noon, twelve seats, starter jar included.” The local server silently identifies supported facts and generates the full matrix using the saved profile and default modules. Your browser never receives the API key; it remains in the local `.env` file and is used only by the localhost server.
