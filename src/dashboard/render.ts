@@ -14,7 +14,8 @@ export async function renderDashboard(request: RunRequest, parsed: ParsedRespons
     core: ["SEO_BLOG", "SCRIPT_STUDIO", "SMART_NEWSLETTER"].map((block) => ({ label: LABELS[block], content: parsed.blocks.get(block as never) ?? "" })),
     modules: (Object.keys(MODULES) as ModuleId[]).map((module) => ({ label: LABELS[module], active: request.modules.includes(module) && parsed.blocks.has(MODULES[module].block) })),
     activeCount: request.modules.length - parsed.missingModules.length,
-    fabricationFlagged: fabrication.status === "flagged"
+    fabricationFlagged: fabrication.status === "flagged",
+    eventPageUrl: parsed.blocks.has("EVENT_PAGE") ? "modules/event-page.html" : ""
   };
   return template.replace("__RUN_DATA__", JSON.stringify(data).replace(/</g, "\\u003c"));
 }
