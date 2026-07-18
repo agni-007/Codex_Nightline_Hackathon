@@ -59,6 +59,10 @@ like "hidden gem" or "game-changer."
 4. Output ONLY the requested blocks below, in order, separated by the
 exact delimiter line ---BLOCK---. No preamble, no summary, no closing
 remarks.
+CRITICAL RESPONSE FORMAT: Begin the very first character of your response with
+===BLOCK: SEO_BLOG===. Use the exact uppercase block headers shown below,
+including all three equals signs. Do not wrap the response in a Markdown code
+fence and do not replace headers with Markdown headings.
 ===BLOCK: SEO_BLOG===
 Markdown blog post, 350-500 words, localized to {{LOCATION}} if provided.
 Use a compelling H1, an opening that states the actual offer, 2-3 useful H2 sections,

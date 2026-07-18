@@ -62,6 +62,14 @@ describe("SRS §4 core pipeline", () => {
     expect(parsed.blocks.get("SMART_NEWSLETTER")).toContain("Subject Line");
   });
 
+  it("accepts equivalent Markdown headings from a non-compliant model response", () => {
+    const markdownHeaders = coreResponse
+      .replace("===BLOCK: SEO_BLOG===", "## SEO_BLOG")
+      .replace("===BLOCK: SCRIPT_STUDIO===", "## SCRIPT_STUDIO")
+      .replace("===BLOCK: SMART_NEWSLETTER===", "## SMART_NEWSLETTER");
+    expect(parseModelResponse(markdownHeaders, []).blocks.size).toBe(3);
+  });
+
   it("flags an untraced generated numeric fact", () => {
     const parsed = parseModelResponse(coreResponse.replace("10am.", "99 dollars."), []);
     expect(checkFabrication(parsed, sample)).toMatchObject({ status: "flagged" });
