@@ -4,12 +4,11 @@ export class IncompleteResponseError extends Error {}
 
 export function parseModelResponse(raw: string, activeModules: ModuleId[]): ParsedResponse {
   const blocks = new Map<BlockName, string>();
-  const segments = raw.split(/\s*---BLOCK---\s*/);
+  const pattern = /===BLOCK:\s*([A-Z_]+)\s*===\s*([\s\S]*?)(?=\s*(?:---BLOCK---\s*)?===BLOCK:|\s*---BLOCK---\s*$|$)/g;
 
-  for (const segment of segments) {
-    const match = segment.match(/^\s*===BLOCK:\s*([A-Z_]+)\s*===\s*([\s\S]*?)\s*$/);
-    if (!match || !match[2]) continue;
-    blocks.set(match[1] as BlockName, match[2]);
+  for (const match of raw.matchAll(pattern)) {
+    const content = match[2].trim();
+    if (content) blocks.set(match[1] as BlockName, content);
   }
 
   for (const core of CORE_BLOCKS) {

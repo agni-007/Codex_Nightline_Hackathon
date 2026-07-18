@@ -56,6 +56,12 @@ describe("SRS §4 core pipeline", () => {
     expect(parsed.missingModules).toEqual(["sms"]);
   });
 
+  it("parses valid blocks even when a model adds a harmless Markdown fence or preamble", () => {
+    const parsed = parseModelResponse(`Here is your content:\n\n\`\`\`markdown\n${coreResponse}\n\`\`\``, []);
+    expect(parsed.blocks.get("SEO_BLOG")).toContain("Blog copy");
+    expect(parsed.blocks.get("SMART_NEWSLETTER")).toContain("Subject Line");
+  });
+
   it("flags an untraced generated numeric fact", () => {
     const parsed = parseModelResponse(coreResponse.replace("10am.", "99 dollars."), []);
     expect(checkFabrication(parsed, sample)).toMatchObject({ status: "flagged" });
