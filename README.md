@@ -15,7 +15,7 @@ npm install
 cp .env.example .env
 ```
 
-Add your OpenAI API key to `.env` as `OPENAI_API_KEY`. The key is read locally only and is never written to a run output or manifest. The current implementation uses the OpenAI Responses API with `gpt-5.3-codex`.
+Add your OpenAI API key to `.env` as `OPENAI_API_KEY`. The key is read locally only and is never written to a run output or manifest. The current implementation uses the OpenAI Responses API with `gpt-5.4-mini`.
 
 Run commands with `npm run dev -- <command>` during development, or install the package globally with `npm install -g .` to use `hyperlocal-echo` directly.
 

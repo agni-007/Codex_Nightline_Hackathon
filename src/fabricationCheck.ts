@@ -9,6 +9,9 @@ const NUMBER_WORDS: Record<string, number> = {
 
 function normalizedNumber(value: string): string {
   const cleaned = value.toLowerCase().replace(/[$,]/g, "").replace(/(am|pm)$/i, "").trim();
+  if (cleaned === "noon") return "12";
+  const clock = cleaned.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+  if (clock && clock[2] === "00") return String(Number(clock[1]));
   if (/^\d+(?:\.\d+)?$/.test(cleaned)) return String(Number(cleaned));
   const parts = cleaned.split(/[\s-]+/).filter(Boolean);
   if (parts.length && parts.every((part) => part in NUMBER_WORDS)) {
@@ -33,7 +36,12 @@ export function checkFabrication(parsed: ParsedResponse, rawInput: string): Fabr
   const sourceTokens = new Set(tokens(rawInput).map(normalizedNumber));
   const flags: FabricationFlag[] = [];
   for (const [block, content] of parsed.blocks) {
-    for (const token of tokens(content)) {
+    // Script timestamps are production formatting required by Appendix A, not business facts.
+    // Keep any numbers in the visual or voiceover columns subject to the normal audit.
+    const auditableContent = block === "SCRIPT_STUDIO"
+      ? content.split("\n").map((line) => line.startsWith("|") ? line.replace(/^\|[^|]*\|/, "|") : line).join("\n")
+      : content;
+    for (const token of tokens(auditableContent)) {
       if (!sourceTokens.has(normalizedNumber(token))) flags.push({ token, block });
     }
   }

@@ -55,6 +55,11 @@ describe("SRS §4 core pipeline", () => {
     expect(checkFabrication(parsed, sample)).toMatchObject({ status: "flagged" });
   });
 
+  it("does not treat required script timeline formatting as a fabricated business fact", () => {
+    const response = coreResponse.replace("| 10am |", "| 0:00 |").replace("Blog copy about the workshop at 10am.", "Blog copy about the workshop at 10:00.");
+    expect(checkFabrication(parseModelResponse(response, []), sample).status).toBe("passed");
+  });
+
   it("writes every module atomically and suffixes a colliding run folder", async () => {
     const outDir = await mkdtemp(path.join(os.tmpdir(), "hyperlocal-echo-")); cleanup.push(outDir);
     const modules = Object.keys(MODULES) as RunRequest["modules"];

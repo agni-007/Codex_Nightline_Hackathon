@@ -17,7 +17,7 @@ import { parseModelResponse } from "./responseParser.js";
 import { MODULES, type BusinessProfile, type ModuleId, type RunRequest } from "./types.js";
 import { validateInput } from "./validate.js";
 
-const MODEL = "gpt-5.3-codex";
+const MODEL = "gpt-5.4-mini";
 type RunOptions = { type?: string; input?: string; stdin?: boolean; location?: string; modules?: string; lang?: string; feedback?: string; ctaLink?: string; out?: string; debug?: boolean };
 
 async function ask(question: string): Promise<string> { const rl = createInterface({ input, output }); try { return (await rl.question(question)).trim(); } finally { rl.close(); } }
