@@ -69,6 +69,6 @@ describe("SRS §4 core pipeline", () => {
     expect(await readFile(path.join(first.directory, "modules", "flyer-qr.png"))).toBeInstanceOf(Buffer);
     expect(await readFile(path.join(first.directory, "modules", "language-pack-es.md"), "utf8")).toContain("LANGUAGE_PACK");
     const manifest = await readFile(path.join(first.directory, "run-manifest.json"), "utf8");
-    expect(manifest).not.toContain("ANTHROPIC_API_KEY");
+    expect(manifest).not.toContain("OPENAI_API_KEY");
   });
 });

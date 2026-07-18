@@ -28,7 +28,7 @@ The three core blocks re-rendered in {{LANG}}, same facts only.`,
 Short adjustment note based on the supplied prior metrics only.`
 };
 
-/** The Appendix A wording is intentionally kept here as the source for every Claude request. */
+/** The Appendix A wording is intentionally kept here as the source for every model request. */
 export function buildSystemPrompt(input: PromptInput): string {
   const activeModules = input.activeModules.map((module) => MODULES[module].block).join(", ");
   const selectedModulePrompts = input.activeModules.map((module) => MODULE_PROMPTS[module]).join("\n---BLOCK---\n");

@@ -17,7 +17,7 @@ import { parseModelResponse } from "./responseParser.js";
 import { MODULES, type BusinessProfile, type ModuleId, type RunRequest } from "./types.js";
 import { validateInput } from "./validate.js";
 
-const MODEL = "claude-sonnet-4-5";
+const MODEL = "gpt-5.3-codex";
 type RunOptions = { type?: string; input?: string; stdin?: boolean; location?: string; modules?: string; lang?: string; feedback?: string; ctaLink?: string; out?: string; debug?: boolean };
 
 async function ask(question: string): Promise<string> { const rl = createInterface({ input, output }); try { return (await rl.question(question)).trim(); } finally { rl.close(); } }
@@ -45,8 +45,8 @@ async function runCommand(options: RunOptions): Promise<void> {
   if (modules.includes("feedback") && !options.feedback) { modules = modules.filter((module) => module !== "feedback"); console.log("NOTE: Feedback Loop skipped because --feedback was not supplied."); }
   const rawInput = await inputValue(options.input, options.stdin);
   const validation = validateInput(rawInput); validation.warnings.forEach((warning) => console.warn(warning));
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error("ERROR: ANTHROPIC_API_KEY is missing. Add it to your environment or local .env file, then try again.");
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("ERROR: OPENAI_API_KEY is missing. Add it to your environment or local .env file, then try again.");
   const request: RunRequest = { type, input: validation.sanitizedInput, location, modules, language: options.lang, feedback: options.feedback, ctaLink: options.ctaLink, outDir: options.out ?? "./output", model: MODEL };
   const rawResponse = await generateContent({ apiKey, model: request.model, system: buildSystemPrompt({ businessType: type, rawInput: request.input, location, activeModules: modules, language: options.lang, feedback: options.feedback }), userMessage: buildUserMessage(options.feedback) });
   const parsed = parseModelResponse(rawResponse, modules);
