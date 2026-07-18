@@ -37,6 +37,15 @@ async function writeUtf8(file: string, content: string): Promise<void> {
   await writeFile(file, content.replace(/\r\n?/g, "\n"), { encoding: "utf8" });
 }
 
+function campaignPack(request: RunRequest, parsed: ParsedResponse): string {
+  const core = ["SEO_BLOG", "SCRIPT_STUDIO", "SMART_NEWSLETTER"]
+    .map((block) => `## ${block}\n\n${parsed.blocks.get(block as never) ?? ""}`);
+  const modules = request.modules
+    .filter((module) => parsed.blocks.has(MODULES[module].block))
+    .map((module) => `## ${MODULES[module].block}\n\n${parsed.blocks.get(MODULES[module].block) ?? ""}`);
+  return `# Campaign Pack\n\n## Source input\n\n${request.input}\n\n${[...core, ...modules].join("\n\n---\n\n")}\n`;
+}
+
 const pause = (milliseconds: number) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 
 async function renameWithRetry(source: string, destination: string): Promise<void> {
@@ -92,6 +101,7 @@ export async function writeRun(options: {
         : MODULES[module].file;
       await writeUtf8(path.join(modulesDirectory, filename), content);
     }
+    await writeUtf8(path.join(tempDirectory, "campaign-pack.md"), campaignPack(options.request, options.parsed));
     if (options.request.modules.includes("flyer") && options.parsed.blocks.has("FLYER")) {
       await QRCode.toFile(path.join(modulesDirectory, "flyer-qr.png"), options.request.ctaLink || "mailto:", { margin: 1, width: 360 });
     }

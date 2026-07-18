@@ -1,5 +1,6 @@
 import { generateContent } from "./apiClient.js";
 import { renderDashboard } from "./dashboard/render.js";
+import { buildEventPageFallback } from "./eventPage.js";
 import { checkFabrication } from "./fabricationCheck.js";
 import { writeRun, type WrittenRun } from "./fileWriter.js";
 import { buildSystemPrompt, buildUserMessage } from "./promptBuilder.js";
@@ -64,6 +65,13 @@ export async function generateRun(options: GenerationOptions): Promise<Generatio
     userMessage: buildUserMessage(request.feedback)
   });
   const parsed = parseModelResponse(rawResponse, request.modules);
+  // An optional block can be lost when a long response reaches its token limit.
+  // Keep event runs usable and never hide the landing page in that case.
+  if (request.modules.includes("eventPage") && !parsed.blocks.has("EVENT_PAGE")) {
+    parsed.blocks.set("EVENT_PAGE", buildEventPageFallback(request.input));
+    parsed.missingModules = parsed.missingModules.filter((module) => module !== "eventPage");
+    options.onNotice?.("The generated event-page block was incomplete, so a safe event-details page was created from your input.");
+  }
   if (parsed.missingModules.length) options.onNotice?.(`WARNING: model response omitted module(s): ${parsed.missingModules.join(", ")}. Core files were still written.`);
   const fabrication = checkFabrication(parsed, request.input);
   fabrication.flags.forEach((flag) => options.onNotice?.(`⚠ WARNING: possible fabricated detail — "${flag.token}" in ${flag.block}. Review before publishing.`));

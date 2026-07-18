@@ -55,7 +55,7 @@ export async function startDashboardServer(options: { port: number; outDir: stri
         catch { return send(response, 404, "Run file not found."); }
       }
       if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/dashboard.html")) {
-        return send(response, 200, await readFile(new URL("./template.html", import.meta.url), "utf8").then((template) => template.replace("__RUN_DATA__", JSON.stringify({ type: "HyperLocal Echo", location: "", timestamp: "Awaiting input", core: [], modules: [], activeCount: 0, fabricationFlagged: false }))), "text/html; charset=utf-8");
+        return send(response, 200, await readFile(new URL("./template.html", import.meta.url), "utf8").then((template) => template.replace("__RUN_DATA__", JSON.stringify({ type: "HyperLocal Echo", location: "", timestamp: "Awaiting input", sourceInput: "", core: [], extras: [], campaignPlan: [], fabricationFlagged: false }))), "text/html; charset=utf-8");
       }
       send(response, 404, "Not found.");
     } catch (error) {

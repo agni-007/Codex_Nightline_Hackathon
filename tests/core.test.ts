@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { checkFabrication } from "../src/fabricationCheck.js";
+import { buildEventPageFallback } from "../src/eventPage.js";
 import { writeRun } from "../src/fileWriter.js";
 import { buildSystemPrompt } from "../src/promptBuilder.js";
 import { IncompleteResponseError, parseModelResponse } from "../src/responseParser.js";
@@ -43,6 +44,13 @@ describe("SRS §4 core pipeline", () => {
   it("detects event-oriented plain-English input for an Event Page", () => {
     expect(describesEvent("We are hosting a pottery workshop this Sunday.")).toBe(true);
     expect(describesEvent("Fresh bread is available today.")).toBe(false);
+  });
+
+  it("creates a safe event-page fallback without adding event facts", () => {
+    const page = buildEventPageFallback("Open mic at <The Counter> this Friday, 7 to 9pm.");
+    expect(page).toContain('<section class="details">');
+    expect(page).toContain("Open mic at &lt;The Counter&gt; this Friday, 7 to 9pm.");
+    expect(page).not.toContain("Event starts at 6pm");
   });
 
   it("fails loudly when a core block is missing", () => {
@@ -91,6 +99,8 @@ describe("SRS §4 core pipeline", () => {
     const second = await writeRun({ request: request(outDir, modules), parsed, fabrication: fabricated, rawInputVerbatim: sample, dashboardHtml: dashboard });
     expect(second.runId).toBe(`${first.runId}-2`);
     expect(await readFile(path.join(first.directory, "blog-post.md"), "utf8")).toContain("Blog copy");
+    expect(await readFile(path.join(first.directory, "campaign-pack.md"), "utf8")).toContain("# Campaign Pack");
+    expect(await readFile(path.join(first.directory, "campaign-pack.md"), "utf8")).toContain(sample);
     expect(await readFile(path.join(first.directory, "modules", "flyer-qr.png"))).toBeInstanceOf(Buffer);
     expect(await readFile(path.join(first.directory, "modules", "language-pack-es.md"), "utf8")).toContain("LANGUAGE_PACK");
     const manifest = await readFile(path.join(first.directory, "run-manifest.json"), "utf8");
