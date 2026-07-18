@@ -1,16 +1,6 @@
 import OpenAI from "openai";
-import tls from "node:tls";
 
 export class ApiError extends Error {}
-
-function configureSystemCertificates(): void {
-  // Corporate/proxied Windows networks often trust a root installed in the OS
-  // store but not in Node's bundled store. Retain Node's existing roots too.
-  const systemCertificates = tls.getCACertificates?.("system") ?? [];
-  if (systemCertificates.length) {
-    tls.setDefaultCACertificates([...tls.getCACertificates("default"), ...systemCertificates]);
-  }
-}
 
 export async function generateContent(options: {
   apiKey: string;
@@ -19,7 +9,6 @@ export async function generateContent(options: {
   userMessage: string;
 }): Promise<string> {
   try {
-    configureSystemCertificates();
     const client = new OpenAI({ apiKey: options.apiKey, timeout: 60_000, maxRetries: 0 });
     const response = await client.responses.create({
       model: options.model,

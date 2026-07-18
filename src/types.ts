@@ -8,7 +8,8 @@ export const MODULES = {
   headlines: { block: "HEADLINE_AB", file: "headline-ab.md" },
   calendar: { block: "POSTING_CALENDAR", file: "posting-calendar.md" },
   languagePack: { block: "LANGUAGE_PACK", file: "language-pack-<lang>.md" },
-  feedback: { block: "FEEDBACK_NOTES", file: "feedback-notes.md" }
+  feedback: { block: "FEEDBACK_NOTES", file: "feedback-notes.md" },
+  eventPage: { block: "EVENT_PAGE", file: "event-page.html" }
 } as const;
 
 export type CoreBlock = (typeof CORE_BLOCKS)[number];

@@ -25,7 +25,9 @@ Markdown table, 7 rows: Day / Channel / Content Block / Note.`,
   languagePack: `===BLOCK: LANGUAGE_PACK===
 The three core blocks re-rendered in {{LANG}}, same facts only.`,
   feedback: `===BLOCK: FEEDBACK_NOTES===
-Short adjustment note based on the supplied prior metrics only.`
+Short adjustment note based on the supplied prior metrics only.`,
+  eventPage: `===BLOCK: EVENT_PAGE===
+Return a complete, self-contained HTML event landing page with inline CSS. Use a polished, mobile-friendly layout with a hero, event details, what is included, and CTA sections. Include only event title, timing, price, capacity, location, inclusions, and CTA details supported by the Raw Input Asset. Omit unsupported fields rather than inventing them. Use a bracketed CTA label if no destination is supplied.`
 };
 
 /** The Appendix A wording is intentionally kept here as the source for every model request. */
@@ -58,21 +60,26 @@ like "hidden gem" or "game-changer."
 exact delimiter line ---BLOCK---. No preamble, no summary, no closing
 remarks.
 ===BLOCK: SEO_BLOG===
-Markdown blog post, 200-300 words, localized to {{LOCATION}} if provided.
+Markdown blog post, 350-500 words, localized to {{LOCATION}} if provided.
+Use a compelling H1, an opening that states the actual offer, 2-3 useful H2 sections,
+and a concise closing CTA. Expand on the value of supplied details without adding facts.
 End with one valid <script type="application/ld+json"> block, using the
 most appropriate schema type given the input. Populate only fields
 supported by the input.
 ---BLOCK---
 ===BLOCK: SCRIPT_STUDIO===
-Markdown table, 5-8 rows, total runtime 20-45 seconds, columns:
+Markdown table, 6-8 rows, total runtime 30-45 seconds, columns:
 | Timestamp | Visual B-Roll Description | Voiceover Audio |
-Directives must be shootable by a non-professional with a phone.
+Directives must be shootable by a non-professional with a phone. Make every row
+specific, varied, and immediately usable, while keeping factual claims traceable.
 ---BLOCK---
 ===BLOCK: SMART_NEWSLETTER===
 Subject Line: <=55 characters
 Preview Text: <=90 characters
 Body: 120-180 words, using [Customer Name] placeholder
 CTA: one bracketed action label, e.g. [Reserve Your Spot ->]
+Write a complete, warm 180-260 word body with a clear opening, detail-rich middle,
+and focused CTA. Use only the supplied facts.
 ${moduleSection}CONSTRAINTS
 - Raw markdown/text only, safely splittable by the delimiter.
 - No em dashes; use commas or periods.

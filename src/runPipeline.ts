@@ -28,6 +28,11 @@ export interface GenerationResult {
   missingModules: ModuleId[];
 }
 
+/** Event language enables an extra local event landing page without user setup. */
+export function describesEvent(input: string): boolean {
+  return /\b(event|workshop|class|session|meetup|webinar|launch|opening|hosting|hosted|talk|talking|festival|showcase|tasting|pop-?up)\b/i.test(input);
+}
+
 /** Runs the one-request generation pipeline for both the CLI and localhost dashboard. */
 export async function generateRun(options: GenerationOptions): Promise<GenerationResult> {
   const validation = validateInput(options.rawInput);
@@ -35,11 +40,17 @@ export async function generateRun(options: GenerationOptions): Promise<Generatio
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("ERROR: OPENAI_API_KEY is missing. Add it to your environment or local .env file, then try again.");
 
+  const modules = describesEvent(options.rawInput) && !options.modules.includes("eventPage")
+    ? [...options.modules, "eventPage" as ModuleId]
+    : options.modules;
+  if (modules.includes("eventPage") && !options.modules.includes("eventPage")) {
+    options.onNotice?.("Event details detected. An Event Page will be generated.");
+  }
   const request: RunRequest = {
     type: options.type || "Local Business",
     input: validation.sanitizedInput,
     location: options.location,
-    modules: options.modules,
+    modules,
     language: options.language,
     feedback: options.feedback,
     ctaLink: options.ctaLink,

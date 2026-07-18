@@ -4,7 +4,7 @@ import { MODULES, type FabricationResult, type ModuleId, type ParsedResponse, ty
 const LABELS: Record<string, string> = {
   SEO_BLOG: "SEO Blog Post", SCRIPT_STUDIO: "Script Studio", SMART_NEWSLETTER: "Smart Newsletter",
   flyer: "Print Flyer + QR", sms: "SMS / WhatsApp Blast", reviews: "Review Reply Kit", hashtags: "Hashtag + Geo-Tag Set",
-  headlines: "Headline A/B Pair", calendar: "7-Day Posting Calendar", languagePack: "Language Pack", feedback: "Feedback Loop"
+  headlines: "Headline A/B Pair", calendar: "7-Day Posting Calendar", languagePack: "Language Pack", feedback: "Feedback Loop", eventPage: "Event Page"
 };
 
 export async function renderDashboard(request: RunRequest, parsed: ParsedResponse, fabrication: FabricationResult): Promise<string> {

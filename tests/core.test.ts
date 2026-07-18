@@ -7,6 +7,7 @@ import { writeRun } from "../src/fileWriter.js";
 import { buildSystemPrompt } from "../src/promptBuilder.js";
 import { IncompleteResponseError, parseModelResponse } from "../src/responseParser.js";
 import { MODULES, type ParsedResponse, type RunRequest } from "../src/types.js";
+import { describesEvent } from "../src/runPipeline.js";
 import { INSUFFICIENT_INPUT_MESSAGE, validateInput } from "../src/validate.js";
 
 const sample = "Hey so this Saturday we're doing a sourdough workshop, 10am to noon, twelve spots, twenty five bucks, includes your own starter jar to take home.";
@@ -37,6 +38,11 @@ describe("SRS §4 core pipeline", () => {
     expect(prompt).toContain("===BLOCK: FLYER===");
     expect(prompt).toContain("===BLOCK: SMS_BLAST===");
     expect(prompt).not.toContain("===BLOCK: HASHTAGS===");
+  });
+
+  it("detects event-oriented plain-English input for an Event Page", () => {
+    expect(describesEvent("We are hosting a pottery workshop this Sunday.")).toBe(true);
+    expect(describesEvent("Fresh bread is available today.")).toBe(false);
   });
 
   it("fails loudly when a core block is missing", () => {

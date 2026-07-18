@@ -45,6 +45,7 @@ The three core outputs, SEO Blog Post, Script Studio, and Smart Newsletter, are 
 | `calendar` | `modules/posting-calendar.md` | Off |
 | `languagePack` | `modules/language-pack-<lang>.md` | Off |
 | `feedback` | `modules/feedback-notes.md` | Off |
+| Automatic Event Page | `modules/event-page.html` | Generated automatically when the input describes an event, workshop, class, talk, launch, or similar gathering. |
 
 Each run creates `output/<timestamp>_<input-slug>/` containing the individual content files, `dashboard.html`, and an auditable `run-manifest.json`. Review any fabrication warnings before publishing.
 
