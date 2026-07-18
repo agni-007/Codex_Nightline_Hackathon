@@ -37,6 +37,28 @@ async function writeUtf8(file: string, content: string): Promise<void> {
   await writeFile(file, content.replace(/\r\n?/g, "\n"), { encoding: "utf8" });
 }
 
+const pause = (milliseconds: number) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
+
+async function renameWithRetry(source: string, destination: string): Promise<void> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    try {
+      await rename(source, destination);
+      return;
+    } catch (error) {
+      lastError = error;
+      const code = (error as NodeJS.ErrnoException).code;
+      if (!(["EPERM", "EBUSY", "EACCES"] as string[]).includes(code ?? "") || attempt === 5) break;
+      await pause(150 * (attempt + 1));
+    }
+  }
+  const code = (lastError as NodeJS.ErrnoException | undefined)?.code;
+  if (["EPERM", "EBUSY", "EACCES"].includes(code ?? "")) {
+    throw new Error("ERROR: output folder is temporarily locked by OneDrive or another app. Close any open output files and try again.");
+  }
+  throw lastError;
+}
+
 export async function writeRun(options: {
   request: RunRequest;
   parsed: ParsedResponse;
@@ -85,7 +107,7 @@ export async function writeRun(options: {
       flagged_strings: options.fabrication.flags
     };
     await writeUtf8(path.join(tempDirectory, "run-manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
-    await rename(tempDirectory, target.directory);
+    await renameWithRetry(tempDirectory, target.directory);
     return { runId: target.runId, directory: target.directory, dashboardPath: path.join(target.directory, "dashboard.html") };
   } catch (error) {
     const { rm } = await import("node:fs/promises");
